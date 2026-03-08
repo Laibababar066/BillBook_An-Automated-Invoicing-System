@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import AppShell from '@/components/AppShell';
-import { useApp, formatPKR, type Client } from '@/context/AppContext';
+import { useApp, formatPKR } from '@/context/AppContext';
 import { Plus, Search, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Clients() {
-  const { clients, setClients } = useApp();
+  const { clients, addClient } = useApp();
   const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [newClient, setNewClient] = useState({ name: '', business: '', email: '', phone: '', city: '', address: '' });
 
   const filtered = clients.filter(c =>
@@ -17,18 +18,18 @@ export default function Clients() {
     c.city.toLowerCase().includes(search.toLowerCase())
   );
 
-  const addClient = () => {
+  const handleAddClient = async () => {
     if (!newClient.name) return;
-    const client: Client = {
-      id: Date.now().toString(),
-      ...newClient,
-      totalBilled: 0,
-      invoiceCount: 0,
-    };
-    setClients(prev => [...prev, client]);
-    setNewClient({ name: '', business: '', email: '', phone: '', city: '', address: '' });
-    setShowModal(false);
-    toast({ title: 'Client added ✓' });
+    setSaving(true);
+    const result = await addClient(newClient);
+    setSaving(false);
+    if (result) {
+      setNewClient({ name: '', business: '', email: '', phone: '', city: '', address: '' });
+      setShowModal(false);
+      toast({ title: 'Client added ✓' });
+    } else {
+      toast({ title: 'Failed to add client', variant: 'destructive' });
+    }
   };
 
   return (
@@ -77,7 +78,6 @@ export default function Clients() {
           </div>
         )}
 
-        {/* Modal */}
         {showModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/30 backdrop-blur-sm" onClick={() => setShowModal(false)}>
             <div className="bg-card rounded-2xl border border-border p-6 w-full max-w-md mx-4 animate-fade-up" onClick={e => e.stopPropagation()}>
@@ -102,8 +102,9 @@ export default function Clients() {
                   </div>
                 ))}
               </div>
-              <button onClick={addClient} className="w-full mt-6 bg-foreground text-primary-foreground py-3 rounded-full font-body text-sm font-medium hover:opacity-90 transition-opacity">
-                Save Client
+              <button onClick={handleAddClient} disabled={saving}
+                className="w-full mt-6 bg-foreground text-primary-foreground py-3 rounded-full font-body text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50">
+                {saving ? 'Saving...' : 'Save Client'}
               </button>
             </div>
           </div>

@@ -10,7 +10,7 @@ import autoTable from 'jspdf-autotable';
 const tabs = ['All', 'Paid', 'Unpaid', 'Overdue', 'Draft'];
 
 export default function InvoiceList() {
-  const { brand, clients, invoices, setInvoices } = useApp();
+  const { brand, clients, invoices, updateInvoice, deleteInvoices } = useApp();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [tab, setTab] = useState('All');
@@ -24,13 +24,15 @@ export default function InvoiceList() {
   });
 
   const toggleSelect = (id: string) => setSelected(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]);
-  const markPaid = (ids: string[]) => {
-    setInvoices(prev => prev.map(i => ids.includes(i.id) ? { ...i, status: 'paid' as const } : i));
+  
+  const markPaid = async (ids: string[]) => {
+    await Promise.all(ids.map(id => updateInvoice(id, { status: 'paid' })));
     setSelected([]);
     toast({ title: 'Marked as paid ✓' });
   };
-  const deleteInvoices = (ids: string[]) => {
-    setInvoices(prev => prev.filter(i => !ids.includes(i.id)));
+  
+  const handleDelete = async (ids: string[]) => {
+    await deleteInvoices(ids);
     setSelected([]);
     toast({ title: 'Deleted ✓' });
   };
@@ -111,7 +113,6 @@ export default function InvoiceList() {
           </button>
         </div>
 
-        {/* Tabs */}
         <div className="flex flex-wrap gap-2">
           {tabs.map(t => (
             <button key={t} onClick={() => setTab(t)}
@@ -127,14 +128,13 @@ export default function InvoiceList() {
             className="bg-transparent font-body text-sm outline-none w-full placeholder:text-muted-foreground/50" />
         </div>
 
-        {/* Bulk actions */}
         {selected.length > 0 && (
           <div className="flex items-center gap-3 bg-sage-light rounded-xl px-4 py-3 animate-fade-up">
             <span className="font-body text-sm">{selected.length} selected</span>
             <button onClick={() => markPaid(selected)} className="flex items-center gap-1 text-sm font-body text-sage hover:text-foreground transition-colors">
               <Check size={14} strokeWidth={1.5} /> Mark as Paid
             </button>
-            <button onClick={() => deleteInvoices(selected)} className="flex items-center gap-1 text-sm font-body text-destructive hover:opacity-80 transition-opacity">
+            <button onClick={() => handleDelete(selected)} className="flex items-center gap-1 text-sm font-body text-destructive hover:opacity-80 transition-opacity">
               <Trash2 size={14} strokeWidth={1.5} /> Delete
             </button>
           </div>
@@ -179,11 +179,6 @@ export default function InvoiceList() {
                           <button onClick={() => downloadPDF(inv)} className="p-1.5 rounded-lg hover:bg-muted transition-colors" title="Download PDF">
                             <FileDown size={14} strokeWidth={1.5} />
                           </button>
-                          {clients.find(c => c.id === inv.clientId)?.email && (
-                            <button onClick={() => navigate(`/invoices/${inv.id}?email=true`)} className="p-1.5 rounded-lg hover:bg-primary/10 transition-colors" title="Email Invoice">
-                              <Mail size={14} strokeWidth={1.5} className="text-foreground" />
-                            </button>
-                          )}
                           {inv.status !== 'paid' && (
                             <button onClick={() => markPaid([inv.id])} className="p-1.5 rounded-lg hover:bg-sage-light transition-colors" title="Mark Paid">
                               <Check size={14} strokeWidth={1.5} className="text-sage" />
