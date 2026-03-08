@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import AppShell from '@/components/AppShell';
 import { useApp } from '@/context/AppContext';
 import { Upload, Palette, Type, Building2, CreditCard, FileText, Trash2, Pencil } from 'lucide-react';
