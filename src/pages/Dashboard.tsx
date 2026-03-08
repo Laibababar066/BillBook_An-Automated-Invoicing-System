@@ -1,10 +1,10 @@
 import AppShell from '@/components/AppShell';
 import { useApp, formatPKR } from '@/context/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, CheckCircle, Clock, AlertTriangle, ArrowRight, PlusCircle, Users, Download } from 'lucide-react';
+import { TrendingUp, CheckCircle, Clock, AlertTriangle, ArrowRight, PlusCircle, Users, Download, Settings, Pencil } from 'lucide-react';
 
 export default function Dashboard() {
-  const { invoices, clients } = useApp();
+  const { invoices, clients, brand } = useApp();
   const navigate = useNavigate();
 
   const paid = invoices.filter(i => i.status === 'paid');
