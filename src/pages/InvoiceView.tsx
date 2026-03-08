@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import AppShell from '@/components/AppShell';
 import { useApp, formatPKR } from '@/context/AppContext';
-import { ArrowLeft, FileDown, Check, Trash2 } from 'lucide-react';
+import { ArrowLeft, FileDown, Check, Trash2, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
