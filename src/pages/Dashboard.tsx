@@ -101,7 +101,16 @@ export default function Dashboard() {
             <div className="font-body font-medium">Add Client</div>
             <div className="text-xs text-primary-foreground/70 font-body mt-1 flex items-center gap-1">Manage <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" /></div>
           </button>
-          <button className="border border-border bg-card text-foreground rounded-2xl p-6 text-left hover-lift group">
+          <button onClick={() => {
+            const headers = ['Invoice #', 'Client', 'Date', 'Due Date', 'Amount', 'Status'];
+            const rows = invoices.map(i => [i.number, i.clientName, i.date, i.dueDate || '', String(i.amount), i.status]);
+            const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = `billbook-report-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click(); URL.revokeObjectURL(url);
+          }} className="border border-border bg-card text-foreground rounded-2xl p-6 text-left hover-lift group">
             <Download size={22} strokeWidth={1.5} className="mb-3 text-muted-foreground" />
             <div className="font-body font-medium">Download Report</div>
             <div className="text-xs text-muted-foreground font-body mt-1 flex items-center gap-1">Export CSV <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" /></div>
