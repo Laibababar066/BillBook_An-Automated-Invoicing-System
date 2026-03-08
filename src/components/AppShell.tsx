@@ -75,8 +75,11 @@ export default function AppShell({ children }: { children: ReactNode }) {
             <button className="p-2 rounded-full hover:bg-muted transition-colors">
               <Bell size={18} strokeWidth={1.5} className="text-muted-foreground" />
             </button>
+            <button onClick={() => { signOut(); navigate('/auth'); }} className="p-2 rounded-full hover:bg-muted transition-colors" title="Sign out">
+              <LogOut size={18} strokeWidth={1.5} className="text-muted-foreground" />
+            </button>
             <div className="w-8 h-8 rounded-full bg-foreground text-primary-foreground flex items-center justify-center text-xs font-body font-medium">
-              {initials}
+              {user?.email?.charAt(0).toUpperCase() || 'U'}
             </div>
           </div>
         </header>
