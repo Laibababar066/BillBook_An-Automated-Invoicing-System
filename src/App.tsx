@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import CreateInvoice from "./pages/CreateInvoice";
 import Clients from "./pages/Clients";
 import InvoiceList from "./pages/InvoiceList";
+import InvoiceView from "./pages/InvoiceView";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
