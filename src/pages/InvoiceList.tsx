@@ -4,6 +4,8 @@ import { useApp, formatPKR } from '@/context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, FileDown, Check, Trash2, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const tabs = ['All', 'Paid', 'Unpaid', 'Overdue', 'Draft'];
 
