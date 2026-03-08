@@ -9,7 +9,7 @@ import autoTable from 'jspdf-autotable';
 export default function InvoiceView() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { brand, invoices, setInvoices } = useApp();
+  const { brand, clients, invoices, setInvoices } = useApp();
   const { toast } = useToast();
 
   const inv = invoices.find(i => i.id === id);
