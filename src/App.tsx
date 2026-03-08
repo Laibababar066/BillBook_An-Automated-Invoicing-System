@@ -29,6 +29,7 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/invoices/new" element={<CreateInvoice />} />
             <Route path="/invoices" element={<InvoiceList />} />
+            <Route path="/invoices/:id" element={<InvoiceView />} />
             <Route path="/clients" element={<Clients />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />

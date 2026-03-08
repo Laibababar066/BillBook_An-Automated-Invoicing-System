@@ -115,8 +115,8 @@ export default function InvoiceList() {
                       <td className="px-4 py-3 text-center"><span className={statusBadge(inv.status)}>{inv.status}</span></td>
                       <td className="px-4 py-3 text-center">
                         <div className="flex items-center justify-center gap-2">
-                          <button className="p-1.5 rounded-lg hover:bg-muted transition-colors" title="View"><FileText size={14} strokeWidth={1.5} /></button>
-                          <button className="p-1.5 rounded-lg hover:bg-muted transition-colors" title="Download"><FileDown size={14} strokeWidth={1.5} /></button>
+                          <button onClick={() => navigate(`/invoices/${inv.id}`)} className="p-1.5 rounded-lg hover:bg-muted transition-colors" title="View"><FileText size={14} strokeWidth={1.5} /></button>
+                          <button onClick={() => downloadPDF(inv)} className="p-1.5 rounded-lg hover:bg-muted transition-colors" title="Download"><FileDown size={14} strokeWidth={1.5} /></button>
                           {inv.status !== 'paid' && (
                             <button onClick={() => markPaid([inv.id])} className="p-1.5 rounded-lg hover:bg-sage-light transition-colors" title="Mark Paid">
                               <Check size={14} strokeWidth={1.5} className="text-sage" />
