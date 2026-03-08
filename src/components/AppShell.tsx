@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, Users, PlusCircle, Settings as SettingsIcon, Crown, Search, Bell, LogOut } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, PlusCircle, Settings as SettingsIcon, Search, Bell, LogOut } from 'lucide-react';
 import { BillBookLogo } from './BillBookLogo';
 import { useApp } from '@/context/AppContext';
 import { useAuth } from '@/context/AuthContext';
 import { ReactNode } from 'react';
+import SidebarUpgradeCard from './SidebarUpgradeCard';
+import UpgradeModal from './UpgradeModal';
 
 const navItems = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
@@ -16,8 +19,9 @@ const navItems = [
 export default function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { brand } = useApp();
+  const { brand, userPlan } = useApp();
   const { user, signOut } = useAuth();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -47,16 +51,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
           })}
         </nav>
         <div className="p-4">
-          <div className="bg-sage-light rounded-xl p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Crown size={16} strokeWidth={1.5} className="text-sage" />
-              <span className="text-xs font-body font-medium text-foreground">Upgrade to Pro</span>
-            </div>
-            <p className="text-xs text-muted-foreground font-body mb-3">Rs. 299/mo • Unlimited invoices</p>
-            <button className="w-full bg-foreground text-primary-foreground text-xs py-2 rounded-full font-body font-medium hover:opacity-90 transition-opacity">
-              Upgrade
-            </button>
-          </div>
+          <SidebarUpgradeCard userPlan={userPlan} onUpgradeClick={() => setShowUpgradeModal(true)} />
         </div>
       </aside>
 
@@ -106,6 +101,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
           );
         })}
       </nav>
+
+      {/* Upgrade Modal */}
+      <UpgradeModal open={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
     </div>
   );
 }

@@ -15,6 +15,8 @@ import Clients from "./pages/Clients";
 import InvoiceList from "./pages/InvoiceList";
 import InvoiceView from "./pages/InvoiceView";
 import Settings from "./pages/Settings";
+import UpgradePage from "./pages/UpgradePage";
+import EmailPreview from "./pages/EmailPreview";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +39,8 @@ const App = () => (
               <Route path="/invoices/:id" element={<ProtectedRoute><InvoiceView /></ProtectedRoute>} />
               <Route path="/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+              <Route path="/upgrade" element={<ProtectedRoute><UpgradePage /></ProtectedRoute>} />
+              <Route path="/email-preview" element={<EmailPreview />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
