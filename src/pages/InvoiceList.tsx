@@ -2,7 +2,7 @@ import { useState } from 'react';
 import AppShell from '@/components/AppShell';
 import { useApp, formatPKR } from '@/context/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, FileDown, Check, Trash2, FileText, MessageCircle, MessageCircle } from 'lucide-react';
+import { Plus, Search, FileDown, Check, Trash2, FileText, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
