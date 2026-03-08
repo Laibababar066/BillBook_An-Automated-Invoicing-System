@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import AppShell from '@/components/AppShell';
 import { useApp } from '@/context/AppContext';
 import { Upload, Palette, Type, Building2, CreditCard, FileText, Trash2, Pencil } from 'lucide-react';
@@ -159,18 +159,69 @@ export default function Settings() {
                 </div>
                 <div>
                   <label className="font-body text-xs text-muted-foreground mb-3 block">Brand Color</label>
-                  <div className="flex flex-wrap gap-3">
-                    {colorSwatches.map(c => (
-                      <button key={c} onClick={() => update('brandColor', c)}
-                        className={`w-10 h-10 rounded-full border-2 transition-all relative ${
-                          form.brandColor === c ? 'border-foreground scale-110 shadow-md' : 'border-transparent hover:scale-105'
-                        }`}
-                        style={{ backgroundColor: c }}>
-                        {form.brandColor === c && (
-                          <span className="absolute inset-0 flex items-center justify-center text-primary-foreground text-xs">✓</span>
-                        )}
-                      </button>
-                    ))}
+
+                  {/* Full color picker */}
+                  <div className="space-y-4">
+                    {/* Native color input as a large swatch */}
+                    <div className="flex items-center gap-4">
+                      <div className="relative">
+                        <input
+                          type="color"
+                          value={form.brandColor || '#1C1917'}
+                          onChange={e => update('brandColor', e.target.value)}
+                          className="w-16 h-16 rounded-2xl cursor-pointer border-2 border-border hover:border-sage transition-colors appearance-none bg-transparent [&::-webkit-color-swatch-wrapper]:p-0.5 [&::-webkit-color-swatch]:rounded-xl [&::-webkit-color-swatch]:border-none [&::-moz-color-swatch]:rounded-xl [&::-moz-color-swatch]:border-none"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-body text-xs text-muted-foreground mb-1">Hex Code</div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-muted-foreground font-mono text-sm">#</span>
+                          <input
+                            value={(form.brandColor || '#1C1917').replace('#', '')}
+                            onChange={e => {
+                              let v = e.target.value.replace(/[^0-9a-fA-F]/g, '').slice(0, 6);
+                              if (v.length <= 6) update('brandColor', '#' + v);
+                            }}
+                            onBlur={e => {
+                              let v = e.target.value.replace(/[^0-9a-fA-F]/g, '');
+                              if (v.length === 3) v = v.split('').map(c => c + c).join('');
+                              if (v.length === 6) update('brandColor', '#' + v);
+                            }}
+                            maxLength={6}
+                            placeholder="1C1917"
+                            className="w-28 bg-transparent border-b border-border py-2 font-mono text-sm outline-none focus:border-sage transition-colors uppercase placeholder:text-muted-foreground/40"
+                          />
+                        </div>
+                        <div className="font-body text-[10px] text-muted-foreground/50 mt-1">
+                          Paste any hex color code
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Quick presets */}
+                    <div>
+                      <div className="font-body text-[10px] text-muted-foreground/60 mb-2 uppercase tracking-wider">Presets</div>
+                      <div className="flex flex-wrap gap-2">
+                        {colorSwatches.map(c => (
+                          <button key={c} onClick={() => update('brandColor', c)}
+                            className={`w-8 h-8 rounded-full border-2 transition-all relative ${
+                              form.brandColor === c ? 'border-foreground scale-110 shadow-md' : 'border-transparent hover:scale-105'
+                            }`}
+                            style={{ backgroundColor: c }}>
+                            {form.brandColor === c && (
+                              <span className="absolute inset-0 flex items-center justify-center text-primary-foreground text-[10px]">✓</span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Current color display */}
+                    <div className="flex items-center gap-3 bg-background rounded-xl px-4 py-3">
+                      <div className="w-6 h-6 rounded-full border border-border" style={{ backgroundColor: form.brandColor || '#1C1917' }} />
+                      <span className="font-mono text-xs uppercase">{form.brandColor || '#1C1917'}</span>
+                      <span className="font-body text-xs text-muted-foreground">— Current brand color</span>
+                    </div>
                   </div>
                 </div>
                 <div>
