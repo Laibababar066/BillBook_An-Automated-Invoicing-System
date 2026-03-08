@@ -15,8 +15,8 @@ export default function Landing() {
           <a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate('/authlassName="text-sm font-body text-muted-foreground hover:text-foreground transition-colors">Login</button>
-          <button onClick={() => navigate('/onboaauthlassName="bg-foreground text-primary-foreground px-5 py-2 rounded-full text-sm font-body font-medium hover:opacity-90 transition-opacity">
+          <button onClick={() => navigate('/authame="text-sm font-body text-muted-foreground hover:text-foreground transition-colors">Login</button>
+          <button onClick={() => navigate('/onboaauthlauthg-foreground text-primary-foreground px-5 py-2 rounded-full text-sm font-body font-medium hover:opacity-90 transition-opacity">
             Start Free
           </button>
         </div>
@@ -33,7 +33,7 @@ export default function Landing() {
               Professional invoices in 60 seconds. Built for Pakistani businesses, with PKR native support.
             </p>
             <div className="flex flex-wrap gap-3">
-              <button onClick={() => navigate('/onboarding')} className="bg-foreground text-primary-foreground px-8 py-3 rounded-full font-body font-medium hover:opacity-90 transition-opacity flex items-center gap-2">
+              <button onClick={() => navigate('/onboarding'authme="bg-foreground text-primary-foreground px-8 py-3 rounded-full font-body font-medium hover:opacity-90 transition-opacity flex items-center gap-2">
                 Start Free <ArrowRight size={16} strokeWidth={1.5} />
               </button>
               <button onClick={() => navigate('/dashboard')} className="border border-border text-foreground px-8 py-3 rounded-full font-body font-medium hover:bg-muted transition-colors">
