@@ -16,30 +16,6 @@ export default function CreateInvoice() {
   const [saving, setSaving] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  // Check if user can create invoice
-  if (!canCreateInvoice(userPlan)) {
-    return (
-      <AppShell>
-        <div className="animate-fade-up flex items-center justify-center min-h-[60vh]">
-          <div className="text-center max-w-md">
-            <div className="text-5xl mb-4">🔒</div>
-            <h1 className="font-heading text-2xl font-bold mb-2">Free Limit Reached</h1>
-            <p className="font-body text-sm text-muted-foreground mb-6">
-              You've used all 5 free invoices this month. Upgrade to Pro for unlimited invoicing.
-            </p>
-            <button
-              onClick={() => setShowUpgradeModal(true)}
-              className="bg-foreground text-primary-foreground px-8 py-3 rounded-full font-body text-sm font-medium hover:opacity-90 transition-opacity"
-            >
-              Upgrade to Pro — Rs. 4,999/mo
-            </button>
-          </div>
-          <UpgradeModal open={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
-        </div>
-      </AppShell>
-    );
-  }
-
   const nextNum = brand.nextInvoiceNumber || invoices.length + 1;
   const invoiceNumber = `${brand.invoicePrefix || 'INV'}-${String(nextNum).padStart(3, '0')}`;
 
@@ -57,6 +33,32 @@ export default function CreateInvoice() {
     discount: 0,
     notes: brand.preferCash ? brand.cashInstructions : `Bank: ${brand.bankName}\nA/C: ${brand.accountTitle}\nA/C #: ${brand.accountNumber}${brand.iban ? '\nIBAN: ' + brand.iban : ''}`,
   });
+
+  const canCreate = canCreateInvoice(userPlan);
+
+  // Check if user can create invoice
+  if (!canCreate) {
+    return (
+      <AppShell>
+        <div className="animate-fade-up flex items-center justify-center min-h-[60vh]">
+          <div className="text-center max-w-md">
+            <div className="text-5xl mb-4">🔒</div>
+            <h1 className="font-heading text-2xl font-bold mb-2">Free Limit Reached</h1>
+            <p className="font-body text-sm text-muted-foreground mb-6">
+              You've used all 5 free invoices this month. Upgrade to Pro for unlimited invoicing.
+            </p>
+            <button
+              onClick={() => navigate('/upgrade')}
+              className="bg-foreground text-primary-foreground px-8 py-3 rounded-full font-body text-sm font-medium hover:opacity-90 transition-opacity"
+            >
+              Upgrade to Pro — Rs. 4,999/mo
+            </button>
+          </div>
+          <UpgradeModal open={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
+        </div>
+      </AppShell>
+    );
+  }
 
   const selectClient = (id: string) => {
     const c = clients.find(cl => cl.id === id);
