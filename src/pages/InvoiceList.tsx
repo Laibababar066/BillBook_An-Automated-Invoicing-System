@@ -179,6 +179,18 @@ export default function InvoiceList() {
                           <button onClick={() => downloadPDF(inv)} className="p-1.5 rounded-lg hover:bg-muted transition-colors" title="Download PDF">
                             <FileDown size={14} strokeWidth={1.5} />
                           </button>
+                          {(() => {
+                            const client = clients.find(c => c.id === inv.clientId);
+                            const phone = client?.phone?.replace(/[\s\-()]/g, '');
+                            if (!phone) return null;
+                            const msg = encodeURIComponent(`Hi ${inv.clientName},\n\nInvoice *${inv.number}* for *${formatPKR(inv.amount)}*.\nDue: ${inv.dueDate || 'N/A'}\n\n— ${brand.businessName || 'BillBook'}`);
+                            const waLink = `https://wa.me/${phone.startsWith('+') ? phone.slice(1) : phone}?text=${msg}`;
+                            return (
+                              <a href={waLink} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-lg hover:bg-[#25D366]/10 transition-colors" title="WhatsApp">
+                                <MessageCircle size={14} strokeWidth={1.5} className="text-[#25D366]" />
+                              </a>
+                            );
+                          })()}
                           {inv.status !== 'paid' && (
                             <button onClick={() => markPaid([inv.id])} className="p-1.5 rounded-lg hover:bg-sage-light transition-colors" title="Mark Paid">
                               <Check size={14} strokeWidth={1.5} className="text-sage" />
