@@ -180,9 +180,8 @@ export default function InvoiceView() {
             <button onClick={downloadPDF} className="flex items-center gap-2 border border-border px-5 py-2.5 rounded-full font-body text-sm font-medium hover:bg-muted transition-colors">
               <FileDown size={15} strokeWidth={1.5} /> Download PDF
             </button>
-            <button onClick={openEmailModal} className="flex items-center gap-2 bg-foreground text-primary-foreground px-5 py-2.5 rounded-full font-body text-sm font-medium hover:opacity-90 transition-opacity">
-              <Mail size={15} strokeWidth={1.5} /> Email Invoice
-            </button>
+
+
             {inv.status !== 'paid' && (
               <button onClick={markPaid} className="flex items-center gap-2 bg-sage text-primary-foreground px-5 py-2.5 rounded-full font-body text-sm font-medium hover:opacity-90 transition-opacity">
                 <Check size={15} strokeWidth={1.5} /> Mark Paid
