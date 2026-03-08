@@ -14,6 +14,7 @@ export default function InvoiceView() {
   const navigate = useNavigate();
   const { brand, clients, invoices, setInvoices } = useApp();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [sending, setSending] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [emailTo, setEmailTo] = useState('');
