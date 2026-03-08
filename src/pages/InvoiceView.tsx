@@ -139,10 +139,10 @@ export default function InvoiceView() {
               );
               const waLink = `https://wa.me/${phone.startsWith('+') ? phone.slice(1) : phone}?text=${msg}`;
               return (
-                <a href={waLink} target="_blank" rel="noopener noreferrer"
+                <button onClick={() => window.open(waLink, '_blank')}
                   className="flex items-center gap-2 bg-[#25D366] text-white px-5 py-2.5 rounded-full font-body text-sm font-medium hover:opacity-90 transition-opacity">
                   <MessageCircle size={15} strokeWidth={1.5} /> WhatsApp
-                </a>
+                </button>
               );
             })()}
             {inv.status !== 'paid' && (
