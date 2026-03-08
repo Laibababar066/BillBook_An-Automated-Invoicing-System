@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import AppShell from '@/components/AppShell';
 import { useApp, formatPKR } from '@/context/AppContext';
-import { ArrowLeft, FileDown, Check, Trash2 } from 'lucide-react';
+import { ArrowLeft, FileDown, Check, Trash2, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -9,7 +9,7 @@ import autoTable from 'jspdf-autotable';
 export default function InvoiceView() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { brand, invoices, setInvoices } = useApp();
+  const { brand, clients, invoices, setInvoices } = useApp();
   const { toast } = useToast();
 
   const inv = invoices.find(i => i.id === id);
@@ -126,10 +126,25 @@ export default function InvoiceView() {
               <span className={statusBadge(inv.status)}>{inv.status}</span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+           <div className="flex flex-wrap items-center gap-2">
             <button onClick={downloadPDF} className="flex items-center gap-2 border border-border px-5 py-2.5 rounded-full font-body text-sm font-medium hover:bg-muted transition-colors">
               <FileDown size={15} strokeWidth={1.5} /> Download PDF
             </button>
+            {(() => {
+              const client = clients.find(c => c.id === inv.clientId);
+              const phone = client?.phone?.replace(/[\s\-()]/g, '');
+              if (!phone) return null;
+              const msg = encodeURIComponent(
+                `Hi ${inv.clientName},\n\nHere's your invoice *${inv.number}* for *${formatPKR(inv.amount)}*.\nDue: ${inv.dueDate || 'N/A'}\n\nThank you!\n— ${brand.businessName || 'BillBook'}`
+              );
+              const waLink = `https://wa.me/${phone.startsWith('+') ? phone.slice(1) : phone}?text=${msg}`;
+              return (
+                <a href={waLink} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-2 bg-[#25D366] text-white px-5 py-2.5 rounded-full font-body text-sm font-medium hover:opacity-90 transition-opacity">
+                  <MessageCircle size={15} strokeWidth={1.5} /> WhatsApp
+                </a>
+              );
+            })()}
             {inv.status !== 'paid' && (
               <button onClick={markPaid} className="flex items-center gap-2 bg-sage text-primary-foreground px-5 py-2.5 rounded-full font-body text-sm font-medium hover:opacity-90 transition-opacity">
                 <Check size={15} strokeWidth={1.5} /> Mark Paid
