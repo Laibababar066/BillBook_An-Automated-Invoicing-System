@@ -17,7 +17,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { brand } = useApp();
-  const initials = brand.businessName ? brand.businessName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : 'BB';
+  const { user, signOut } = useAuth();
 
   return (
     <div className="flex min-h-screen w-full bg-background">
