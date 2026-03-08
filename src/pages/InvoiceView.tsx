@@ -264,43 +264,7 @@ export default function InvoiceView() {
         </div>
       </div>
 
-      {/* Email Modal */}
-      {showEmailModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/30 backdrop-blur-sm" onClick={() => !sending && setShowEmailModal(false)}>
-          <div className="bg-card rounded-2xl border border-border p-6 w-full max-w-md mx-4 animate-fade-up" onClick={e => e.stopPropagation()}>
-            <h2 className="font-heading text-xl font-bold mb-1">Email Invoice</h2>
-            <p className="font-body text-xs text-muted-foreground mb-5">
-              A branded email with PDF attachment will be sent
-            </p>
 
-            <div className="space-y-4">
-              <div>
-                <label className="font-body text-xs text-muted-foreground mb-1 block">Recipient Email</label>
-                <input value={emailTo} onChange={e => setEmailTo(e.target.value)} placeholder="client@email.com" type="email"
-                  className="w-full bg-transparent border-b border-border py-2 font-body text-sm outline-none focus:border-sage placeholder:text-muted-foreground/50" />
-              </div>
-              <div>
-                <label className="font-body text-xs text-muted-foreground mb-1 block">Subject</label>
-                <div className="font-body text-sm py-2 text-muted-foreground">
-                  {brand.invoicePrefix || 'Invoice'} {inv.number} from {brand.businessName || 'BillBook'}
-                </div>
-              </div>
-              <div>
-                <label className="font-body text-xs text-muted-foreground mb-1 block">Attachment</label>
-                <div className="font-body text-sm py-2 flex items-center gap-2">
-                  <FileDown size={14} strokeWidth={1.5} className="text-sage" />
-                  {inv.number}-{inv.clientName}.pdf
-                </div>
-              </div>
-            </div>
 
-            <button onClick={sendEmail} disabled={sending}
-              className="w-full mt-6 bg-foreground text-primary-foreground py-3 rounded-full font-body text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2">
-              {sending ? <><Loader2 size={15} className="animate-spin" /> Sending...</> : <><Mail size={15} strokeWidth={1.5} /> Send Email</>}
-            </button>
-          </div>
-        </div>
-      )}
-    </AppShell>
   );
 }
