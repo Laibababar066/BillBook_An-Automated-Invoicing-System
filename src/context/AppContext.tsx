@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthContext';
+import type { UserPlan } from '@/lib/plan-utils';
 
 const defaultBrand = {
   businessName: '',
@@ -61,6 +62,7 @@ interface AppContextType {
   clients: Client[];
   invoices: Invoice[];
   loading: boolean;
+  userPlan: UserPlan;
   addClient: (client: Omit<Client, 'id' | 'totalBilled' | 'invoiceCount'>) => Promise<Client | null>;
   updateClient: (id: string, updates: Partial<Client>) => Promise<void>;
   deleteClient: (id: string) => Promise<void>;
@@ -73,6 +75,8 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | null>(null);
 
+const defaultUserPlan: UserPlan = { plan: 'free', invoiceCount: 0, proExpiresAt: null, upgradeRequested: false };
+
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const [brand, setBrand] = useState<BrandSettings>(() => {
@@ -82,10 +86,24 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [clients, setClients] = useState<Client[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userPlan, setUserPlan] = useState<UserPlan>(defaultUserPlan);
 
   useEffect(() => {
     localStorage.setItem('billbook-brand', JSON.stringify(brand));
   }, [brand]);
+
+  const fetchUserPlan = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase.from('profiles').select('plan, invoice_count, pro_expires_at, upgrade_requested').eq('user_id', user.id).single();
+    if (data) {
+      setUserPlan({
+        plan: (data as any).plan || 'free',
+        invoiceCount: (data as any).invoice_count || 0,
+        proExpiresAt: (data as any).pro_expires_at || null,
+        upgradeRequested: (data as any).upgrade_requested || false,
+      });
+    }
+  }, [user]);
 
   const fetchClients = useCallback(async () => {
     if (!user) return;
@@ -130,9 +148,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const refreshData = useCallback(async () => {
     setLoading(true);
-    await Promise.all([fetchClients(), fetchInvoices()]);
+    await Promise.all([fetchClients(), fetchInvoices(), fetchUserPlan()]);
     setLoading(false);
-  }, [fetchClients, fetchInvoices]);
+  }, [fetchClients, fetchInvoices, fetchUserPlan]);
 
   useEffect(() => {
     if (user) {
@@ -140,6 +158,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     } else {
       setClients([]);
       setInvoices([]);
+      setUserPlan(defaultUserPlan);
       setLoading(false);
     }
   }, [user, refreshData]);
@@ -157,15 +176,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }).select().single();
     if (error || !data) return null;
     const newClient: Client = {
-      id: data.id,
-      name: data.name,
-      business: data.business,
-      email: data.email,
-      phone: data.phone,
-      city: data.city,
-      address: data.address,
-      totalBilled: 0,
-      invoiceCount: 0,
+      id: data.id, name: data.name, business: data.business,
+      email: data.email, phone: data.phone, city: data.city,
+      address: data.address, totalBilled: 0, invoiceCount: 0,
     };
     setClients(prev => [newClient, ...prev]);
     return newClient;
@@ -205,7 +218,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }).select().single();
     if (error || !data) return null;
 
-    // Insert items
     if (invoice.items.length > 0) {
       await supabase.from('invoice_items').insert(
         invoice.items.map(item => ({
@@ -216,6 +228,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         }))
       );
     }
+
+    // Increment invoice_count on profile
+    await supabase.from('profiles').update({
+      invoice_count: userPlan.invoiceCount + 1,
+    } as any).eq('user_id', user.id);
+    setUserPlan(prev => ({ ...prev, invoiceCount: prev.invoiceCount + 1 }));
 
     const newInvoice: Invoice = { ...invoice, id: data.id };
     setInvoices(prev => [newInvoice, ...prev]);
@@ -248,7 +266,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AppContext.Provider value={{
-      brand, setBrand, clients, invoices, loading,
+      brand, setBrand, clients, invoices, loading, userPlan,
       addClient, updateClient, deleteClient,
       addInvoice, updateInvoice, deleteInvoice, deleteInvoices,
       refreshData,

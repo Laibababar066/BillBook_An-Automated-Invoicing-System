@@ -1,11 +1,16 @@
+import { useState } from 'react';
 import AppShell from '@/components/AppShell';
 import { useApp, formatPKR } from '@/context/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, CheckCircle, Clock, AlertTriangle, ArrowRight, PlusCircle, Users, Download, Settings, Pencil } from 'lucide-react';
+import { TrendingUp, CheckCircle, Clock, AlertTriangle, ArrowRight, PlusCircle, Users, Download, Pencil } from 'lucide-react';
+import DashboardBanner from '@/components/DashboardBanner';
+import UpgradeModal from '@/components/UpgradeModal';
+import { canCreateInvoice } from '@/lib/plan-utils';
 
 export default function Dashboard() {
-  const { invoices, clients, brand } = useApp();
+  const { invoices, clients, brand, userPlan } = useApp();
   const navigate = useNavigate();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const paid = invoices.filter(i => i.status === 'paid');
   const unpaid = invoices.filter(i => i.status === 'unpaid');
@@ -34,6 +39,14 @@ export default function Dashboard() {
     return `px-3 py-1 rounded-full text-xs font-body font-medium capitalize ${styles[status] || styles.draft}`;
   };
 
+  const handleNewInvoice = () => {
+    if (!canCreateInvoice(userPlan)) {
+      setShowUpgradeModal(true);
+      return;
+    }
+    navigate('/invoices/new');
+  };
+
   return (
     <AppShell>
       <div className="animate-fade-up space-y-8 pb-20 md:pb-0">
@@ -41,6 +54,9 @@ export default function Dashboard() {
           <h1 className="font-heading text-3xl font-bold">Dashboard</h1>
           <p className="font-body text-sm text-muted-foreground mt-1">Here's what's happening with your invoices</p>
         </div>
+
+        {/* Usage warning banner */}
+        <DashboardBanner userPlan={userPlan} />
 
         {/* Brand Card */}
         <div className="bg-card border border-border rounded-2xl p-5 flex items-center gap-5 hover-lift cursor-pointer" onClick={() => navigate('/settings')}>
@@ -121,7 +137,7 @@ export default function Dashboard() {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button onClick={() => navigate('/invoices/new')} className="bg-foreground text-primary-foreground rounded-2xl p-6 text-left hover:opacity-90 transition-opacity group">
+          <button onClick={handleNewInvoice} className="bg-foreground text-primary-foreground rounded-2xl p-6 text-left hover:opacity-90 transition-opacity group">
             <PlusCircle size={22} strokeWidth={1.5} className="mb-3" />
             <div className="font-body font-medium">New Invoice</div>
             <div className="text-xs text-primary-foreground/70 font-body mt-1 flex items-center gap-1">Create now <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" /></div>
@@ -166,11 +182,12 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Keyboard hints */}
         <div className="text-center font-body text-xs text-muted-foreground/50 hidden md:block">
           N = New Invoice &nbsp;•&nbsp; C = Clients
         </div>
       </div>
+
+      <UpgradeModal open={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
     </AppShell>
   );
 }
