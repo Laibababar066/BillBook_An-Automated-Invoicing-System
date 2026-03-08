@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './AuthContext';
 
 const defaultBrand = {
   businessName: '',
@@ -22,63 +24,235 @@ const defaultBrand = {
   onboardingComplete: false,
 };
 
-const defaultClients = [
-  { id: '1', name: 'Ahmed Trading Co.', business: 'Ahmed & Sons Trading', email: 'ahmed@trading.pk', phone: '+92 300 1234567', city: 'Karachi', address: 'Block 7, Clifton, Karachi', totalBilled: 145000, invoiceCount: 12 },
-  { id: '2', name: 'Fatima Boutique', business: 'Fatima Fashion House', email: 'fatima@boutique.pk', phone: '+92 321 9876543', city: 'Lahore', address: 'MM Alam Road, Gulberg III, Lahore', totalBilled: 89500, invoiceCount: 8 },
-  { id: '3', name: 'Usman Tech Solutions', business: 'Usman IT Services', email: 'usman@techsol.pk', phone: '+92 333 5551234', city: 'Islamabad', address: 'Blue Area, F-6, Islamabad', totalBilled: 234000, invoiceCount: 15 },
-  { id: '4', name: 'Zara Interiors', business: 'Zara Design Studio', email: 'zara@interiors.pk', phone: '+92 345 6789012', city: 'Lahore', address: 'DHA Phase 5, Lahore', totalBilled: 67000, invoiceCount: 5 },
-];
-
-const defaultInvoices = [
-  { id: '1', number: 'INV-001', clientId: '1', clientName: 'Ahmed Trading Co.', date: '2026-03-01', dueDate: '2026-03-31', amount: 25000, status: 'paid' as const, items: [{ description: 'Web Design Services', qty: 1, unitPrice: 25000 }], notes: '' },
-  { id: '2', number: 'INV-002', clientId: '2', clientName: 'Fatima Boutique', date: '2026-03-03', dueDate: '2026-03-18', amount: 15500, status: 'unpaid' as const, items: [{ description: 'Logo Design', qty: 1, unitPrice: 15500 }], notes: '' },
-  { id: '3', number: 'INV-003', clientId: '3', clientName: 'Usman Tech Solutions', date: '2026-02-28', dueDate: '2026-03-15', amount: 44000, status: 'paid' as const, items: [{ description: 'Monthly IT Support', qty: 1, unitPrice: 44000 }], notes: '' },
-  { id: '4', number: 'INV-004', clientId: '1', clientName: 'Ahmed Trading Co.', date: '2026-03-05', dueDate: '2026-04-05', amount: 8000, status: 'unpaid' as const, items: [{ description: 'Business Cards Print', qty: 500, unitPrice: 16 }], notes: '' },
-  { id: '5', number: 'INV-005', clientId: '4', clientName: 'Zara Interiors', date: '2026-03-07', dueDate: '2026-03-07', amount: 23500, status: 'draft' as const, items: [{ description: 'Interior Consultation', qty: 1, unitPrice: 23500 }], notes: '' },
-];
-
 export type InvoiceStatus = 'paid' | 'unpaid' | 'overdue' | 'draft';
 
-export type Client = typeof defaultClients[0];
-export type Invoice = {
-  id: string; number: string; clientId: string; clientName: string;
-  date: string; dueDate: string; amount: number; status: InvoiceStatus;
-  items: InvoiceItem[]; notes: string;
+export type Client = {
+  id: string;
+  name: string;
+  business: string;
+  email: string;
+  phone: string;
+  city: string;
+  address: string;
+  totalBilled: number;
+  invoiceCount: number;
 };
-export type BrandSettings = typeof defaultBrand;
+
 export type InvoiceItem = { description: string; qty: number; unitPrice: number };
+
+export type Invoice = {
+  id: string;
+  number: string;
+  clientId: string;
+  clientName: string;
+  date: string;
+  dueDate: string;
+  amount: number;
+  status: InvoiceStatus;
+  items: InvoiceItem[];
+  notes: string;
+};
+
+export type BrandSettings = typeof defaultBrand;
 
 interface AppContextType {
   brand: BrandSettings;
   setBrand: React.Dispatch<React.SetStateAction<BrandSettings>>;
   clients: Client[];
-  setClients: React.Dispatch<React.SetStateAction<Client[]>>;
   invoices: Invoice[];
-  setInvoices: React.Dispatch<React.SetStateAction<Invoice[]>>;
+  loading: boolean;
+  addClient: (client: Omit<Client, 'id' | 'totalBilled' | 'invoiceCount'>) => Promise<Client | null>;
+  updateClient: (id: string, updates: Partial<Client>) => Promise<void>;
+  deleteClient: (id: string) => Promise<void>;
+  addInvoice: (invoice: Omit<Invoice, 'id'>) => Promise<Invoice | null>;
+  updateInvoice: (id: string, updates: Partial<Invoice>) => Promise<void>;
+  deleteInvoice: (id: string) => Promise<void>;
+  deleteInvoices: (ids: string[]) => Promise<void>;
+  refreshData: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
   const [brand, setBrand] = useState<BrandSettings>(() => {
     const saved = localStorage.getItem('billbook-brand');
     return saved ? JSON.parse(saved) : defaultBrand;
   });
-  const [clients, setClients] = useState<Client[]>(() => {
-    const saved = localStorage.getItem('billbook-clients');
-    return saved ? JSON.parse(saved) : defaultClients;
-  });
-  const [invoices, setInvoices] = useState<Invoice[]>(() => {
-    const saved = localStorage.getItem('billbook-invoices');
-    return saved ? JSON.parse(saved) : defaultInvoices;
-  });
+  const [clients, setClients] = useState<Client[]>([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => { localStorage.setItem('billbook-brand', JSON.stringify(brand)); }, [brand]);
-  useEffect(() => { localStorage.setItem('billbook-clients', JSON.stringify(clients)); }, [clients]);
-  useEffect(() => { localStorage.setItem('billbook-invoices', JSON.stringify(invoices)); }, [invoices]);
+  useEffect(() => {
+    localStorage.setItem('billbook-brand', JSON.stringify(brand));
+  }, [brand]);
+
+  const fetchClients = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase.from('clients').select('*').order('created_at', { ascending: false });
+    if (data) {
+      setClients(data.map(c => ({
+        id: c.id,
+        name: c.name,
+        business: c.business,
+        email: c.email,
+        phone: c.phone,
+        city: c.city,
+        address: c.address,
+        totalBilled: Number(c.total_billed),
+        invoiceCount: c.invoice_count,
+      })));
+    }
+  }, [user]);
+
+  const fetchInvoices = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase.from('invoices').select('*, invoice_items(*)').order('created_at', { ascending: false });
+    if (data) {
+      setInvoices(data.map(inv => ({
+        id: inv.id,
+        number: inv.number,
+        clientId: inv.client_id || '',
+        clientName: inv.client_name,
+        date: inv.date,
+        dueDate: inv.due_date,
+        amount: Number(inv.amount),
+        status: inv.status as InvoiceStatus,
+        items: (inv.invoice_items || []).map((item: any) => ({
+          description: item.description,
+          qty: item.qty,
+          unitPrice: Number(item.unit_price),
+        })),
+        notes: inv.notes,
+      })));
+    }
+  }, [user]);
+
+  const refreshData = useCallback(async () => {
+    setLoading(true);
+    await Promise.all([fetchClients(), fetchInvoices()]);
+    setLoading(false);
+  }, [fetchClients, fetchInvoices]);
+
+  useEffect(() => {
+    if (user) {
+      refreshData();
+    } else {
+      setClients([]);
+      setInvoices([]);
+      setLoading(false);
+    }
+  }, [user, refreshData]);
+
+  const addClient = async (client: Omit<Client, 'id' | 'totalBilled' | 'invoiceCount'>): Promise<Client | null> => {
+    if (!user) return null;
+    const { data, error } = await supabase.from('clients').insert({
+      user_id: user.id,
+      name: client.name,
+      business: client.business,
+      email: client.email,
+      phone: client.phone,
+      city: client.city,
+      address: client.address,
+    }).select().single();
+    if (error || !data) return null;
+    const newClient: Client = {
+      id: data.id,
+      name: data.name,
+      business: data.business,
+      email: data.email,
+      phone: data.phone,
+      city: data.city,
+      address: data.address,
+      totalBilled: 0,
+      invoiceCount: 0,
+    };
+    setClients(prev => [newClient, ...prev]);
+    return newClient;
+  };
+
+  const updateClient = async (id: string, updates: Partial<Client>) => {
+    const dbUpdates: any = {};
+    if (updates.name !== undefined) dbUpdates.name = updates.name;
+    if (updates.business !== undefined) dbUpdates.business = updates.business;
+    if (updates.email !== undefined) dbUpdates.email = updates.email;
+    if (updates.phone !== undefined) dbUpdates.phone = updates.phone;
+    if (updates.city !== undefined) dbUpdates.city = updates.city;
+    if (updates.address !== undefined) dbUpdates.address = updates.address;
+    if (updates.totalBilled !== undefined) dbUpdates.total_billed = updates.totalBilled;
+    if (updates.invoiceCount !== undefined) dbUpdates.invoice_count = updates.invoiceCount;
+    await supabase.from('clients').update(dbUpdates).eq('id', id);
+    setClients(prev => prev.map(c => c.id === id ? { ...c, ...updates } : c));
+  };
+
+  const deleteClient = async (id: string) => {
+    await supabase.from('clients').delete().eq('id', id);
+    setClients(prev => prev.filter(c => c.id !== id));
+  };
+
+  const addInvoice = async (invoice: Omit<Invoice, 'id'>): Promise<Invoice | null> => {
+    if (!user) return null;
+    const { data, error } = await supabase.from('invoices').insert({
+      user_id: user.id,
+      number: invoice.number,
+      client_id: invoice.clientId || null,
+      client_name: invoice.clientName,
+      date: invoice.date,
+      due_date: invoice.dueDate,
+      amount: invoice.amount,
+      status: invoice.status,
+      notes: invoice.notes,
+    }).select().single();
+    if (error || !data) return null;
+
+    // Insert items
+    if (invoice.items.length > 0) {
+      await supabase.from('invoice_items').insert(
+        invoice.items.map(item => ({
+          invoice_id: data.id,
+          description: item.description,
+          qty: item.qty,
+          unit_price: item.unitPrice,
+        }))
+      );
+    }
+
+    const newInvoice: Invoice = { ...invoice, id: data.id };
+    setInvoices(prev => [newInvoice, ...prev]);
+    return newInvoice;
+  };
+
+  const updateInvoice = async (id: string, updates: Partial<Invoice>) => {
+    const dbUpdates: any = {};
+    if (updates.number !== undefined) dbUpdates.number = updates.number;
+    if (updates.clientId !== undefined) dbUpdates.client_id = updates.clientId || null;
+    if (updates.clientName !== undefined) dbUpdates.client_name = updates.clientName;
+    if (updates.date !== undefined) dbUpdates.date = updates.date;
+    if (updates.dueDate !== undefined) dbUpdates.due_date = updates.dueDate;
+    if (updates.amount !== undefined) dbUpdates.amount = updates.amount;
+    if (updates.status !== undefined) dbUpdates.status = updates.status;
+    if (updates.notes !== undefined) dbUpdates.notes = updates.notes;
+    await supabase.from('invoices').update(dbUpdates).eq('id', id);
+    setInvoices(prev => prev.map(i => i.id === id ? { ...i, ...updates } : i));
+  };
+
+  const deleteInvoice = async (id: string) => {
+    await supabase.from('invoices').delete().eq('id', id);
+    setInvoices(prev => prev.filter(i => i.id !== id));
+  };
+
+  const deleteInvoices = async (ids: string[]) => {
+    await supabase.from('invoices').delete().in('id', ids);
+    setInvoices(prev => prev.filter(i => !ids.includes(i.id)));
+  };
 
   return (
-    <AppContext.Provider value={{ brand, setBrand, clients, setClients, invoices, setInvoices }}>
+    <AppContext.Provider value={{
+      brand, setBrand, clients, invoices, loading,
+      addClient, updateClient, deleteClient,
+      addInvoice, updateInvoice, deleteInvoice, deleteInvoices,
+      refreshData,
+    }}>
       {children}
     </AppContext.Provider>
   );

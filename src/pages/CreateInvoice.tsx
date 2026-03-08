@@ -8,9 +8,10 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 export default function CreateInvoice() {
-  const { brand, clients, invoices, setInvoices } = useApp();
+  const { brand, clients, invoices, addInvoice } = useApp();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [saving, setSaving] = useState(false);
 
   const nextNum = brand.nextInvoiceNumber || invoices.length + 1;
   const invoiceNumber = `${brand.invoicePrefix || 'INV'}-${String(nextNum).padStart(3, '0')}`;
@@ -54,22 +55,26 @@ export default function CreateInvoice() {
   const taxAmount = subtotal * (form.taxRate / 100);
   const total = subtotal + taxAmount - form.discount;
 
-  const saveInvoice = (status: 'draft' | 'unpaid') => {
-    const inv = {
-      id: Date.now().toString(),
+  const saveInvoice = async (status: 'draft' | 'unpaid') => {
+    setSaving(true);
+    const result = await addInvoice({
       number: form.number,
       clientId: form.clientId,
       clientName: form.clientName || 'Unknown',
       date: form.date,
       dueDate: form.dueDate,
       amount: total,
-      status: status as any,
+      status,
       items: form.items,
       notes: form.notes,
-    };
-    setInvoices(prev => [...prev, inv]);
-    toast({ title: status === 'draft' ? 'Draft saved ✓' : 'Invoice sent ✓' });
-    navigate('/invoices');
+    });
+    setSaving(false);
+    if (result) {
+      toast({ title: status === 'draft' ? 'Draft saved ✓' : 'Invoice sent ✓' });
+      navigate('/invoices');
+    } else {
+      toast({ title: 'Failed to save invoice', variant: 'destructive' });
+    }
   };
 
   const generatePDF = () => {
@@ -244,13 +249,13 @@ export default function CreateInvoice() {
 
             {/* Actions */}
             <div className="flex flex-wrap gap-3">
-              <button onClick={() => saveInvoice('draft')} className="flex items-center gap-2 border border-border px-6 py-3 rounded-full font-body text-sm font-medium hover:bg-muted transition-colors">
+              <button onClick={() => saveInvoice('draft')} disabled={saving} className="flex items-center gap-2 border border-border px-6 py-3 rounded-full font-body text-sm font-medium hover:bg-muted transition-colors disabled:opacity-50">
                 <Save size={16} strokeWidth={1.5} /> Save Draft
               </button>
               <button onClick={generatePDF} className="flex items-center gap-2 bg-sage text-primary-foreground px-6 py-3 rounded-full font-body text-sm font-medium hover:opacity-90 transition-opacity">
                 <FileDown size={16} strokeWidth={1.5} /> Preview PDF
               </button>
-              <button onClick={() => saveInvoice('unpaid')} className="flex items-center gap-2 bg-foreground text-primary-foreground px-6 py-3 rounded-full font-body text-sm font-medium hover:opacity-90 transition-opacity">
+              <button onClick={() => saveInvoice('unpaid')} disabled={saving} className="flex items-center gap-2 bg-foreground text-primary-foreground px-6 py-3 rounded-full font-body text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50">
                 <Send size={16} strokeWidth={1.5} /> Send Invoice
               </button>
             </div>
