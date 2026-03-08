@@ -1,7 +1,8 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, Users, PlusCircle, Settings as SettingsIcon, Crown, Search, Bell } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, PlusCircle, Settings as SettingsIcon, Crown, Search, Bell, LogOut } from 'lucide-react';
 import { BillBookLogo } from './BillBookLogo';
 import { useApp } from '@/context/AppContext';
+import { useAuth } from '@/context/AuthContext';
 import { ReactNode } from 'react';
 
 const navItems = [
