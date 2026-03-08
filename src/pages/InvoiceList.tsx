@@ -10,7 +10,7 @@ import autoTable from 'jspdf-autotable';
 const tabs = ['All', 'Paid', 'Unpaid', 'Overdue', 'Draft'];
 
 export default function InvoiceList() {
-  const { invoices, setInvoices } = useApp();
+  const { brand, invoices, setInvoices } = useApp();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [tab, setTab] = useState('All');
