@@ -149,56 +149,8 @@ export default function InvoiceView() {
     toast({ title: 'PDF downloaded ✓' });
   };
 
-  const openEmailModal = () => {
-    setEmailTo(client?.email || '');
-    setShowEmailModal(true);
-  };
 
-  const sendEmail = async () => {
-    if (!emailTo) {
-      toast({ title: 'Please enter an email address', variant: 'destructive' });
-      return;
-    }
-    setSending(true);
-    try {
-      const pdfBase64 = generatePDFBase64();
-      const subject = `${brand.invoicePrefix || 'Invoice'} ${inv.number} from ${brand.businessName || 'BillBook'}`;
 
-      const { data, error } = await supabase.functions.invoke('send-invoice-email', {
-        body: {
-          to: emailTo,
-          subject,
-          businessName: brand.businessName,
-          businessCity: brand.city,
-          businessPhone: brand.phone,
-          brandColor: brand.brandColor,
-          invoiceNumber: inv.number,
-          invoiceDate: inv.date,
-          dueDate: inv.dueDate,
-          clientName: inv.clientName,
-          items: inv.items,
-          subtotal,
-          taxRate,
-          taxAmount,
-          total,
-          notes: inv.notes,
-          pdfBase64,
-          fromEmail: `${brand.businessName || 'BillBook'} <${user?.email || 'onboarding@resend.dev'}>`,
-        },
-      });
-
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
-
-      toast({ title: 'Invoice emailed ✓' });
-      setShowEmailModal(false);
-    } catch (err: any) {
-      console.error('Email error:', err);
-      toast({ title: 'Failed to send email', description: err.message, variant: 'destructive' });
-    } finally {
-      setSending(false);
-    }
-  };
 
   const statusBadge = (status: string) => {
     const styles: Record<string, string> = {
