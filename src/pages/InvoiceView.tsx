@@ -2,22 +2,18 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import AppShell from '@/components/AppShell';
 import { useApp, formatPKR } from '@/context/AppContext';
-import { ArrowLeft, FileDown, Check, Trash2, Mail, Loader2 } from 'lucide-react';
+import { ArrowLeft, FileDown, Check, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/context/AuthContext';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { supabase } from '@/integrations/supabase/client';
 
 export default function InvoiceView() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { brand, clients, invoices, setInvoices } = useApp();
   const { toast } = useToast();
-  const { user } = useAuth();
-  const [sending, setSending] = useState(false);
-  const [showEmailModal, setShowEmailModal] = useState(false);
-  const [emailTo, setEmailTo] = useState('');
+
+
 
   const inv = invoices.find(i => i.id === id);
   if (!inv) {
@@ -153,56 +149,8 @@ export default function InvoiceView() {
     toast({ title: 'PDF downloaded ✓' });
   };
 
-  const openEmailModal = () => {
-    setEmailTo(client?.email || '');
-    setShowEmailModal(true);
-  };
 
-  const sendEmail = async () => {
-    if (!emailTo) {
-      toast({ title: 'Please enter an email address', variant: 'destructive' });
-      return;
-    }
-    setSending(true);
-    try {
-      const pdfBase64 = generatePDFBase64();
-      const subject = `${brand.invoicePrefix || 'Invoice'} ${inv.number} from ${brand.businessName || 'BillBook'}`;
 
-      const { data, error } = await supabase.functions.invoke('send-invoice-email', {
-        body: {
-          to: emailTo,
-          subject,
-          businessName: brand.businessName,
-          businessCity: brand.city,
-          businessPhone: brand.phone,
-          brandColor: brand.brandColor,
-          invoiceNumber: inv.number,
-          invoiceDate: inv.date,
-          dueDate: inv.dueDate,
-          clientName: inv.clientName,
-          items: inv.items,
-          subtotal,
-          taxRate,
-          taxAmount,
-          total,
-          notes: inv.notes,
-          pdfBase64,
-          fromEmail: `${brand.businessName || 'BillBook'} <${user?.email || 'onboarding@resend.dev'}>`,
-        },
-      });
-
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
-
-      toast({ title: 'Invoice emailed ✓' });
-      setShowEmailModal(false);
-    } catch (err: any) {
-      console.error('Email error:', err);
-      toast({ title: 'Failed to send email', description: err.message, variant: 'destructive' });
-    } finally {
-      setSending(false);
-    }
-  };
 
   const statusBadge = (status: string) => {
     const styles: Record<string, string> = {
@@ -232,9 +180,8 @@ export default function InvoiceView() {
             <button onClick={downloadPDF} className="flex items-center gap-2 border border-border px-5 py-2.5 rounded-full font-body text-sm font-medium hover:bg-muted transition-colors">
               <FileDown size={15} strokeWidth={1.5} /> Download PDF
             </button>
-            <button onClick={openEmailModal} className="flex items-center gap-2 bg-foreground text-primary-foreground px-5 py-2.5 rounded-full font-body text-sm font-medium hover:opacity-90 transition-opacity">
-              <Mail size={15} strokeWidth={1.5} /> Email Invoice
-            </button>
+
+
             {inv.status !== 'paid' && (
               <button onClick={markPaid} className="flex items-center gap-2 bg-sage text-primary-foreground px-5 py-2.5 rounded-full font-body text-sm font-medium hover:opacity-90 transition-opacity">
                 <Check size={15} strokeWidth={1.5} /> Mark Paid
@@ -316,44 +263,6 @@ export default function InvoiceView() {
           </div>
         </div>
       </div>
-
-      {/* Email Modal */}
-      {showEmailModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/30 backdrop-blur-sm" onClick={() => !sending && setShowEmailModal(false)}>
-          <div className="bg-card rounded-2xl border border-border p-6 w-full max-w-md mx-4 animate-fade-up" onClick={e => e.stopPropagation()}>
-            <h2 className="font-heading text-xl font-bold mb-1">Email Invoice</h2>
-            <p className="font-body text-xs text-muted-foreground mb-5">
-              A branded email with PDF attachment will be sent
-            </p>
-
-            <div className="space-y-4">
-              <div>
-                <label className="font-body text-xs text-muted-foreground mb-1 block">Recipient Email</label>
-                <input value={emailTo} onChange={e => setEmailTo(e.target.value)} placeholder="client@email.com" type="email"
-                  className="w-full bg-transparent border-b border-border py-2 font-body text-sm outline-none focus:border-sage placeholder:text-muted-foreground/50" />
-              </div>
-              <div>
-                <label className="font-body text-xs text-muted-foreground mb-1 block">Subject</label>
-                <div className="font-body text-sm py-2 text-muted-foreground">
-                  {brand.invoicePrefix || 'Invoice'} {inv.number} from {brand.businessName || 'BillBook'}
-                </div>
-              </div>
-              <div>
-                <label className="font-body text-xs text-muted-foreground mb-1 block">Attachment</label>
-                <div className="font-body text-sm py-2 flex items-center gap-2">
-                  <FileDown size={14} strokeWidth={1.5} className="text-sage" />
-                  {inv.number}-{inv.clientName}.pdf
-                </div>
-              </div>
-            </div>
-
-            <button onClick={sendEmail} disabled={sending}
-              className="w-full mt-6 bg-foreground text-primary-foreground py-3 rounded-full font-body text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2">
-              {sending ? <><Loader2 size={15} className="animate-spin" /> Sending...</> : <><Mail size={15} strokeWidth={1.5} /> Send Email</>}
-            </button>
-          </div>
-        </div>
-      )}
     </AppShell>
   );
 }
