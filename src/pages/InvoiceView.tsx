@@ -187,6 +187,7 @@ export default function InvoiceView() {
           total,
           notes: inv.notes,
           pdfBase64,
+          fromEmail: `${brand.businessName || 'BillBook'} <${user?.email || 'onboarding@resend.dev'}>`,
         },
       });
 
