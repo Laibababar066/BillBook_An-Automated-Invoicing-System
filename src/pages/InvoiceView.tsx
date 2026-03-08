@@ -263,8 +263,6 @@ export default function InvoiceView() {
           </div>
         </div>
       </div>
-
-
-
+    </AppShell>
   );
 }
