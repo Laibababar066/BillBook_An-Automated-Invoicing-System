@@ -14,7 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          account_number: string | null
+          account_title: string | null
+          bank_name: string | null
+          brand_color: string | null
+          business_name: string | null
+          business_type: string | null
+          cash_instructions: string | null
+          city: string | null
+          created_at: string
+          currency: string | null
+          email: string
+          font_style: string | null
+          iban: string | null
+          id: string
+          invoice_prefix: string | null
+          logo: string | null
+          next_invoice_number: number | null
+          onboarding_complete: boolean | null
+          payment_terms: string | null
+          phone: string | null
+          prefer_cash: boolean | null
+          tax_rate: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_number?: string | null
+          account_title?: string | null
+          bank_name?: string | null
+          brand_color?: string | null
+          business_name?: string | null
+          business_type?: string | null
+          cash_instructions?: string | null
+          city?: string | null
+          created_at?: string
+          currency?: string | null
+          email: string
+          font_style?: string | null
+          iban?: string | null
+          id?: string
+          invoice_prefix?: string | null
+          logo?: string | null
+          next_invoice_number?: number | null
+          onboarding_complete?: boolean | null
+          payment_terms?: string | null
+          phone?: string | null
+          prefer_cash?: boolean | null
+          tax_rate?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_number?: string | null
+          account_title?: string | null
+          bank_name?: string | null
+          brand_color?: string | null
+          business_name?: string | null
+          business_type?: string | null
+          cash_instructions?: string | null
+          city?: string | null
+          created_at?: string
+          currency?: string | null
+          email?: string
+          font_style?: string | null
+          iban?: string | null
+          id?: string
+          invoice_prefix?: string | null
+          logo?: string | null
+          next_invoice_number?: number | null
+          onboarding_complete?: boolean | null
+          payment_terms?: string | null
+          phone?: string | null
+          prefer_cash?: boolean | null
+          tax_rate?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
