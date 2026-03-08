@@ -38,7 +38,7 @@ export default function SidebarUpgradeCard({ userPlan, onUpgradeClick }: Sidebar
         onClick={onUpgradeClick}
         className="w-full bg-foreground text-primary-foreground text-xs py-2 rounded-full font-body font-medium hover:opacity-90 transition-opacity"
       >
-        Upgrade to Pro — Rs. 4,999/mo
+        Upgrade to Pro
       </button>
     </div>
   );
