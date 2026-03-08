@@ -188,7 +188,7 @@ export default function InvoiceList() {
                             return (
                               <button onClick={() => window.open(waLink, '_blank')} className="p-1.5 rounded-lg hover:bg-[#25D366]/10 transition-colors" title="WhatsApp">
                                 <MessageCircle size={14} strokeWidth={1.5} className="text-[#25D366]" />
-                              </a>
+                              </button>
                             );
                           })()}
                           {inv.status !== 'paid' && (
