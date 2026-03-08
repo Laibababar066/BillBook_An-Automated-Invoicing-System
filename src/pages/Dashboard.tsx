@@ -1,10 +1,10 @@
 import AppShell from '@/components/AppShell';
 import { useApp, formatPKR } from '@/context/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, CheckCircle, Clock, AlertTriangle, ArrowRight, PlusCircle, Users, Download } from 'lucide-react';
+import { TrendingUp, CheckCircle, Clock, AlertTriangle, ArrowRight, PlusCircle, Users, Download, Settings, Pencil } from 'lucide-react';
 
 export default function Dashboard() {
-  const { invoices, clients } = useApp();
+  const { invoices, clients, brand } = useApp();
   const navigate = useNavigate();
 
   const paid = invoices.filter(i => i.status === 'paid');
@@ -40,6 +40,36 @@ export default function Dashboard() {
         <div>
           <h1 className="font-heading text-3xl font-bold">Dashboard</h1>
           <p className="font-body text-sm text-muted-foreground mt-1">Here's what's happening with your invoices</p>
+        </div>
+
+        {/* Brand Card */}
+        <div className="bg-card border border-border rounded-2xl p-5 flex items-center gap-5 hover-lift cursor-pointer" onClick={() => navigate('/settings')}>
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border border-border overflow-hidden"
+            style={{ backgroundColor: brand.brandColor ? brand.brandColor + '15' : undefined }}>
+            {brand.logo ? (
+              <img src={brand.logo} alt="Logo" className="w-full h-full object-contain p-1.5" />
+            ) : (
+              <span className="font-heading text-xl font-bold" style={{ color: brand.brandColor || undefined }}>
+                {brand.businessName ? brand.businessName.charAt(0) : 'B'}
+              </span>
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="font-heading text-lg font-bold truncate">{brand.businessName || 'Set up your brand'}</div>
+            <div className="flex items-center gap-3 text-xs font-body text-muted-foreground mt-0.5">
+              {brand.businessType && <span>{brand.businessType}</span>}
+              {brand.city && <><span>•</span><span>{brand.city}</span></>}
+              {brand.phone && <><span>•</span><span>{brand.phone}</span></>}
+            </div>
+            <div className="flex items-center gap-2 mt-1.5">
+              <div className="w-3 h-3 rounded-full border border-border" style={{ backgroundColor: brand.brandColor || '#1C1917' }} />
+              <span className="font-mono text-[10px] text-muted-foreground uppercase">{brand.brandColor || '#1C1917'}</span>
+              <span className="text-[10px] text-muted-foreground font-body">• {brand.fontStyle || 'Classic'}</span>
+            </div>
+          </div>
+          <button className="shrink-0 p-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+            <Pencil size={16} strokeWidth={1.5} />
+          </button>
         </div>
 
         {/* Stats */}
