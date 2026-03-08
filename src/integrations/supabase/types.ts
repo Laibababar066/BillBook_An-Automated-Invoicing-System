@@ -160,9 +160,12 @@ export type Database = {
           onboarding_complete: boolean | null
           payment_terms: string | null
           phone: string | null
+          plan: string
           prefer_cash: boolean | null
+          pro_expires_at: string | null
           tax_rate: number | null
           updated_at: string
+          upgrade_requested: boolean
           user_id: string
         }
         Insert: {
@@ -186,9 +189,12 @@ export type Database = {
           onboarding_complete?: boolean | null
           payment_terms?: string | null
           phone?: string | null
+          plan?: string
           prefer_cash?: boolean | null
+          pro_expires_at?: string | null
           tax_rate?: number | null
           updated_at?: string
+          upgrade_requested?: boolean
           user_id: string
         }
         Update: {
@@ -212,9 +218,48 @@ export type Database = {
           onboarding_complete?: boolean | null
           payment_terms?: string | null
           phone?: string | null
+          plan?: string
           prefer_cash?: boolean | null
+          pro_expires_at?: string | null
           tax_rate?: number | null
           updated_at?: string
+          upgrade_requested?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
+      upgrade_requests: {
+        Row: {
+          id: string
+          notes: string
+          payment_method: string
+          screenshot_url: string
+          status: string
+          submitted_at: string
+          transaction_id: string
+          user_email: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          notes?: string
+          payment_method?: string
+          screenshot_url?: string
+          status?: string
+          submitted_at?: string
+          transaction_id?: string
+          user_email?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          notes?: string
+          payment_method?: string
+          screenshot_url?: string
+          status?: string
+          submitted_at?: string
+          transaction_id?: string
+          user_email?: string
           user_id?: string
         }
         Relationships: []
