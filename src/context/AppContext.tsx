@@ -37,6 +37,8 @@ const defaultInvoices = [
   { id: '5', number: 'INV-005', clientId: '4', clientName: 'Zara Interiors', date: '2026-03-07', dueDate: '2026-03-07', amount: 23500, status: 'draft' as const, items: [{ description: 'Interior Consultation', qty: 1, unitPrice: 23500 }], notes: '' },
 ];
 
+export type InvoiceStatus = 'paid' | 'unpaid' | 'overdue' | 'draft';
+
 export type Client = typeof defaultClients[0];
 export type Invoice = typeof defaultInvoices[0];
 export type BrandSettings = typeof defaultBrand;
