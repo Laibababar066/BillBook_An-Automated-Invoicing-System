@@ -40,7 +40,11 @@ const defaultInvoices = [
 export type InvoiceStatus = 'paid' | 'unpaid' | 'overdue' | 'draft';
 
 export type Client = typeof defaultClients[0];
-export type Invoice = typeof defaultInvoices[0];
+export type Invoice = {
+  id: string; number: string; clientId: string; clientName: string;
+  date: string; dueDate: string; amount: number; status: InvoiceStatus;
+  items: InvoiceItem[]; notes: string;
+};
 export type BrandSettings = typeof defaultBrand;
 export type InvoiceItem = { description: string; qty: number; unitPrice: number };
 
