@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
-import BillBookLogo from '@/components/BillBookLogo';
+import { BillBookLogo } from '@/components/BillBookLogo';
 
 export default function Auth() {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
