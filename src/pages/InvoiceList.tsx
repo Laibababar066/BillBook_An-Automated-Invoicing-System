@@ -2,7 +2,7 @@ import { useState } from 'react';
 import AppShell from '@/components/AppShell';
 import { useApp, formatPKR } from '@/context/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, FileDown, Check, Trash2, FileText, MessageCircle } from 'lucide-react';
+import { Plus, Search, FileDown, Check, Trash2, FileText, MessageCircle, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -10,7 +10,7 @@ import autoTable from 'jspdf-autotable';
 const tabs = ['All', 'Paid', 'Unpaid', 'Overdue', 'Draft'];
 
 export default function InvoiceList() {
-  const { brand, invoices, setInvoices } = useApp();
+  clients, const { brand, invoices, setInvoices } = useApp();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [tab, setTab] = useState('All');
