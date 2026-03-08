@@ -1,7 +1,8 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, Users, PlusCircle, Settings as SettingsIcon, Crown, Search, Bell } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, PlusCircle, Settings as SettingsIcon, Crown, Search, Bell, LogOut } from 'lucide-react';
 import { BillBookLogo } from './BillBookLogo';
 import { useApp } from '@/context/AppContext';
+import { useAuth } from '@/context/AuthContext';
 import { ReactNode } from 'react';
 
 const navItems = [
@@ -16,7 +17,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { brand } = useApp();
-  const initials = brand.businessName ? brand.businessName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : 'BB';
+  const { user, signOut } = useAuth();
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -74,8 +75,11 @@ export default function AppShell({ children }: { children: ReactNode }) {
             <button className="p-2 rounded-full hover:bg-muted transition-colors">
               <Bell size={18} strokeWidth={1.5} className="text-muted-foreground" />
             </button>
+            <button onClick={() => { signOut(); navigate('/auth'); }} className="p-2 rounded-full hover:bg-muted transition-colors" title="Sign out">
+              <LogOut size={18} strokeWidth={1.5} className="text-muted-foreground" />
+            </button>
             <div className="w-8 h-8 rounded-full bg-foreground text-primary-foreground flex items-center justify-center text-xs font-body font-medium">
-              {initials}
+              {user?.email?.charAt(0).toUpperCase() || 'U'}
             </div>
           </div>
         </header>

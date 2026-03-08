@@ -4,6 +4,7 @@ import AppShell from '@/components/AppShell';
 import { useApp, formatPKR } from '@/context/AppContext';
 import { ArrowLeft, FileDown, Check, Trash2, Mail, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,6 +14,7 @@ export default function InvoiceView() {
   const navigate = useNavigate();
   const { brand, clients, invoices, setInvoices } = useApp();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [sending, setSending] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [emailTo, setEmailTo] = useState('');
@@ -185,6 +187,7 @@ export default function InvoiceView() {
           total,
           notes: inv.notes,
           pdfBase64,
+          fromEmail: `${brand.businessName || 'BillBook'} <${user?.email || 'onboarding@resend.dev'}>`,
         },
       });
 

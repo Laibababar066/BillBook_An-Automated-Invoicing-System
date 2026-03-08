@@ -15,8 +15,8 @@ export default function Landing() {
           <a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate('/dashboard')} className="text-sm font-body text-muted-foreground hover:text-foreground transition-colors">Login</button>
-          <button onClick={() => navigate('/onboarding')} className="bg-foreground text-primary-foreground px-5 py-2 rounded-full text-sm font-body font-medium hover:opacity-90 transition-opacity">
+          <button onClick={() => navigate('/auth')} className="text-sm font-body text-muted-foreground hover:text-foreground transition-colors">Login</button>
+          <button onClick={() => navigate('/auth')} className="bg-foreground text-primary-foreground px-5 py-2 rounded-full text-sm font-body font-medium hover:opacity-90 transition-opacity">
             Start Free
           </button>
         </div>
@@ -33,10 +33,10 @@ export default function Landing() {
               Professional invoices in 60 seconds. Built for Pakistani businesses, with PKR native support.
             </p>
             <div className="flex flex-wrap gap-3">
-              <button onClick={() => navigate('/onboarding')} className="bg-foreground text-primary-foreground px-8 py-3 rounded-full font-body font-medium hover:opacity-90 transition-opacity flex items-center gap-2">
+              <button onClick={() => navigate('/auth')} className="bg-foreground text-primary-foreground px-8 py-3 rounded-full font-body font-medium hover:opacity-90 transition-opacity flex items-center gap-2">
                 Start Free <ArrowRight size={16} strokeWidth={1.5} />
               </button>
-              <button onClick={() => navigate('/dashboard')} className="border border-border text-foreground px-8 py-3 rounded-full font-body font-medium hover:bg-muted transition-colors">
+              <button onClick={() => navigate('/auth')} className="border border-border text-foreground px-8 py-3 rounded-full font-body font-medium hover:bg-muted transition-colors">
                 See Demo
               </button>
             </div>
@@ -109,7 +109,7 @@ export default function Landing() {
               <li>✓ Client management</li>
               <li>✓ PDF export</li>
             </ul>
-            <button onClick={() => navigate('/onboarding')} className="w-full border border-border text-foreground py-3 rounded-full font-body font-medium hover:bg-muted transition-colors">
+            <button onClick={() => navigate('/auth')} className="w-full border border-border text-foreground py-3 rounded-full font-body font-medium hover:bg-muted transition-colors">
               Get Started
             </button>
           </div>
@@ -123,7 +123,7 @@ export default function Landing() {
               <li>✓ Priority support</li>
               <li>✓ Custom branding</li>
             </ul>
-            <button onClick={() => navigate('/onboarding')} className="w-full bg-primary-foreground text-foreground py-3 rounded-full font-body font-medium hover:opacity-90 transition-opacity">
+            <button onClick={() => navigate('/auth')} className="w-full bg-primary-foreground text-foreground py-3 rounded-full font-body font-medium hover:opacity-90 transition-opacity">
               Start Pro Trial
             </button>
           </div>
