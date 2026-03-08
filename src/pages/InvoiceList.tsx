@@ -2,7 +2,7 @@ import { useState } from 'react';
 import AppShell from '@/components/AppShell';
 import { useApp, formatPKR } from '@/context/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, FileDown, Check, Trash2, FileText, MessageCircle } from 'lucide-react';
+import { Plus, Search, FileDown, Check, Trash2, FileText, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -179,18 +179,11 @@ export default function InvoiceList() {
                           <button onClick={() => downloadPDF(inv)} className="p-1.5 rounded-lg hover:bg-muted transition-colors" title="Download PDF">
                             <FileDown size={14} strokeWidth={1.5} />
                           </button>
-                          {(() => {
-                            const client = clients.find(c => c.id === inv.clientId);
-                            const phone = client?.phone?.replace(/[\s\-()]/g, '');
-                            if (!phone) return null;
-                            const msg = encodeURIComponent(`Hi ${inv.clientName},\n\nInvoice *${inv.number}* for *${formatPKR(inv.amount)}*.\nDue: ${inv.dueDate || 'N/A'}\n\n— ${brand.businessName || 'BillBook'}`);
-                            const waLink = `https://wa.me/${phone.startsWith('+') ? phone.slice(1) : phone}?text=${msg}`;
-                            return (
-                              <button onClick={() => window.open(waLink, '_blank')} className="p-1.5 rounded-lg hover:bg-[#25D366]/10 transition-colors" title="WhatsApp">
-                                <MessageCircle size={14} strokeWidth={1.5} className="text-[#25D366]" />
-                              </button>
-                            );
-                          })()}
+                          {clients.find(c => c.id === inv.clientId)?.email && (
+                            <button onClick={() => navigate(`/invoices/${inv.id}?email=true`)} className="p-1.5 rounded-lg hover:bg-primary/10 transition-colors" title="Email Invoice">
+                              <Mail size={14} strokeWidth={1.5} className="text-foreground" />
+                            </button>
+                          )}
                           {inv.status !== 'paid' && (
                             <button onClick={() => markPaid([inv.id])} className="p-1.5 rounded-lg hover:bg-sage-light transition-colors" title="Mark Paid">
                               <Check size={14} strokeWidth={1.5} className="text-sage" />
